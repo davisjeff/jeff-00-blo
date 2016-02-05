@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+	<ModulePrefs height="250" title="Pinterest Widget" />
+	<UserPref name="username" display_name="User Name" />	
+	<UserPref name="showboard" display_name="Show Images From Specific Board" datatype="bool" default_value="true"/>
+	<UserPref name="boardname" display_name="Board Name" />
+	<UserPref name="pinnumbers" display_name="Number Of Pictures To Display" />
+	<UserPref name="imagewidth" display_name="Thumbnail Size" default_value="25" datatype="enum">
+		<EnumValue value="75" display_value="75px"/>
+		<EnumValue value="100" display_value="100px"/>
+		<EnumValue value="125" display_value="125px"/>
+		<EnumValue value="150" display_value="150px"/>
+		<EnumValue value="175" display_value="175px"/>
+		<EnumValue value="200" display_value="200px"/>
+	</UserPref>	
+	<UserPref name="customimagewidth" display_name="Custom Thumbnail Width"/>
+	<UserPref name="customimageheight" display_name="Custom Thumbnail Height"/>
+	<UserPref name="newwindow" display_name="Open Links In New Window" datatype="bool" default_value="true"/>
+
+
+	<Content type="html"><![CDATA[
+		<ul id="pinterest-gallery"></ul>
+		<script type="text/javascript">
+            $( document ).ready(function() {
+                  //GALLERY SETTINGS
+                  var thumbnailCount = prefs.getString("pinnumbers");
+                  var username = prefs.getString("username");
+                  var profile = false;
+                  var board = prefs.getBool("showboard");
+                  var boardname = prefs.getString("boardname");
+                  var newWindow = prefs.getBool("newwindow");
+
+                  //END GALLERY SETTINGS. DO NOT EDIT BELOW THIS LINE
+                var url;
+                var urlPrefix="https://ajax.googleapis.com/ajax/services/feed/load?v=1.0&q=https://www.pinterest.com/";
+                if(board===true&&profile===true||board===false&&profile===false){
+                    $("#pinterest-gallery").append("<p>Error: please choose a profile gallery or board gallery.</p>")
+                }else{
+                    if(profile===true){
+                        url=urlPrefix+username+"/feed.rss&num="+thumbnailCount
+                    }else{
+                        if(board===true&&boardname===""){
+                            $("#pinterest-gallery").append("<p>Error: Please specify a boardname.</p>")
+                        }
+                        url=urlPrefix+username+"/"+boardname+".rss&num="+thumbnailCount
+                    }
+                }
+                $.ajax({
+                    url:url,
+                    dataType:"jsonp",
+                    success:function(e){
+                        $.each(e.responseData.feed.entries,function(t){
+                            var n=e.responseData.feed.entries;
+                            var r=n[t].title;
+                            var i=n[t].link;
+                            var s=n[t].content;
+                            var o=s.indexOf("https");
+                            var u=s.indexOf('"></a>');
+                            var a=s.substring(o,u);
+                            var f=$('<li><a class="pinterest-link" href="'+i+'">'+r+"</a></li>");
+                            if(newWindow===true){
+                                $(".pinterest-link").attr("target","_blank")
+                            }
+                            f.appendTo("#pinterest-gallery").css("background-image","url("+a+")")
+                        })
+                    }})
+                })
+            </script>
+		]]>
+	</Content>
+</Module>
