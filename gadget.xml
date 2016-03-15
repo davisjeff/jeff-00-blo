@@ -19,6 +19,7 @@
 
 
 	<Content type="html"><![CDATA[
+        <!-- COMMENT -->
 		<ul id="pinterest-gallery"></ul>
 		<script type="text/javascript">
             $( document ).ready(function() {
